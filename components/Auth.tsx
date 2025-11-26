@@ -46,6 +46,8 @@ export const Auth: React.FC<AuthProps> = ({ language, onLoginSuccess }) => {
     }
   };
 
+  const redirectUrl = 'https://fin-track-9as4xmghb-befedes-projects.vercel.app'
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] p-4">
       <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 w-full max-w-md">
@@ -122,7 +124,7 @@ export const Auth: React.FC<AuthProps> = ({ language, onLoginSuccess }) => {
               const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                  redirectTo: window.location.origin
+                  redirectTo: redirectUrl
                 }
               });
               if (error) setError(error.message);

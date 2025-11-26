@@ -218,7 +218,7 @@ export const Transactions: React.FC<TransactionsProps> = ({ data, onAddTransacti
               type="submit"
               className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700"
             >
-              {t.save}
+              {loadingRate ? 'Saving...' : t.save}
             </button>
           </div>
         </form>

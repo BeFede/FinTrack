@@ -13,6 +13,7 @@ export const Savings: React.FC<SavingsProps> = ({ data, onAddAsset, onDeleteAsse
     const [name, setName] = useState('');
     const [value, setValue] = useState('');
     const [type, setType] = useState<Asset['type']>('SAVINGS');
+    const [currency, setCurrency] = useState(data.settings.mainCurrency);
     const t = TRANSLATIONS[data.settings.language];
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -20,7 +21,8 @@ export const Savings: React.FC<SavingsProps> = ({ data, onAddAsset, onDeleteAsse
         onAddAsset({
             name,
             value: parseFloat(value),
-            type
+            type,
+            currency
         });
         setName('');
         setValue('');
@@ -127,6 +129,14 @@ export const Savings: React.FC<SavingsProps> = ({ data, onAddAsset, onDeleteAsse
                                 <option value="SAVINGS">Savings</option>
                                 <option value="INVESTMENT">Investment</option>
                                 <option value="CASH">Cash</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-slate-500 mb-1">{t.currency}</label>
+                            <select value={currency} onChange={e => setCurrency(e.target.value as any)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="USD">USD</option>
+                                <option value="ARS">ARS</option>
+                                <option value="EUR">EUR</option>
                             </select>
                         </div>
                         <button type="submit" className="w-full bg-slate-900 text-white py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">

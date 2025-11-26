@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FinancialState, Language, Currency } from '../types';
 import { TRANSLATIONS } from '../constants';
-import { Settings as SettingsIcon, Globe, Coins, RefreshCw } from 'lucide-react';
-import { fetchExchangeRates } from '../services/currencyService';
+import { Settings as SettingsIcon, Globe, Coins } from 'lucide-react';
 
 interface SettingsProps {
     data: FinancialState;
@@ -10,9 +9,8 @@ interface SettingsProps {
 }
 
 export const Settings: React.FC<SettingsProps> = ({ data, onUpdateSettings }) => {
-    const { language, mainCurrency, exchangeRates } = data.settings;
+    const { language, mainCurrency } = data.settings;
     const t = TRANSLATIONS[language];
-    const [loadingRates, setLoadingRates] = useState(false);
 
     const handleLanguageChange = (lang: Language) => {
         onUpdateSettings({ ...data.settings, language: lang });
@@ -20,31 +18,6 @@ export const Settings: React.FC<SettingsProps> = ({ data, onUpdateSettings }) =>
 
     const handleCurrencyChange = (curr: Currency) => {
         onUpdateSettings({ ...data.settings, mainCurrency: curr });
-    };
-
-    const handleUpdateRates = async () => {
-        setLoadingRates(true);
-        const newRates = await fetchExchangeRates();
-        if (newRates) {
-            onUpdateSettings({
-                ...data.settings,
-                exchangeRates: { ...exchangeRates, ...newRates },
-                lastRatesUpdate: Date.now()
-            });
-        } else {
-            alert('Failed to fetch rates. Please try again.');
-        }
-        setLoadingRates(false);
-    };
-
-    const handleRateChange = (curr: Currency, val: number) => {
-        onUpdateSettings({
-            ...data.settings,
-            exchangeRates: {
-                ...exchangeRates,
-                [curr]: val
-            }
-        });
     };
 
     return (
@@ -104,42 +77,7 @@ export const Settings: React.FC<SettingsProps> = ({ data, onUpdateSettings }) =>
                     </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 md:col-span-2">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                            <RefreshCw className="text-indigo-600" />
-                            <h3 className="font-semibold text-slate-800">{t.exchangeRate}</h3>
-                        </div>
-                        <button
-                            onClick={handleUpdateRates}
-                            disabled={loadingRates}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-lg hover:bg-indigo-100 transition-colors disabled:opacity-50"
-                        >
-                            <RefreshCw size={14} className={loadingRates ? 'animate-spin' : ''} />
-                            {loadingRates ? 'Updating...' : 'Update from Internet'}
-                        </button>
-                    </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        {(Object.keys(exchangeRates || {}) as Currency[]).map((curr) => (
-                            <div key={curr} className="space-y-1">
-                                <label className="text-xs font-medium text-slate-500">{curr} (vs USD)</label>
-                                <div className="relative">
-                                    <input
-                                        type="number"
-                                        value={exchangeRates?.[curr] ?? 0}
-                                        onChange={(e) => handleRateChange(curr, parseFloat(e.target.value))}
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"
-                                        step="0.01"
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <p className="text-xs text-slate-400 mt-4">
-                        * Base currency is USD. Enter how much 1 USD is worth in each currency.
-                    </p>
-                </div>
             </div>
         </div>
     );
