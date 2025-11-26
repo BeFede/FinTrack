@@ -120,6 +120,9 @@ export const Auth: React.FC<AuthProps> = ({ language, onLoginSuccess }) => {
             onClick={async () => {
               if (!supabase) return;
               const redirectUrl = import.meta.env.VITE_SUPABASE_REDIRECT_URL || window.location.origin;
+              console.log('🔐 Google OAuth - Redirect URL:', redirectUrl);
+              console.log('🔐 Environment variable:', import.meta.env.VITE_SUPABASE_REDIRECT_URL);
+              console.log('🔐 Window origin:', window.location.origin);
               const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
