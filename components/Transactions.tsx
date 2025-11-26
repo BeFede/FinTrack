@@ -248,59 +248,63 @@ export const Transactions: React.FC<TransactionsProps> = ({ data, onAddTransacti
 
       {/* List */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-medium">
-            <tr>
-              <th className="p-4">{t.date}</th>
-              <th className="p-4">{t.description}</th>
-              <th className="p-4">{t.category}</th>
-              <th className="p-4 text-right">{t.amount}</th>
-              <th className="p-4 w-10"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {filteredTransactions.map(tx => {
-              const IconComponent = getCategoryIcon(tx.category);
-              const colors = CATEGORY_COLORS[tx.category as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS['Other'];
-              return (
-                <tr key={tx.id} className="hover:bg-slate-50/50 group">
-                  <td className="p-4 text-sm text-slate-500">{new Date(tx.date).toLocaleDateString()}</td>
-                  <td className="p-4 text-sm font-medium text-slate-800">
-                    {tx.description}
-                    {tx.currency && tx.currency !== 'USD' && (
-                      <div className="text-xs text-slate-400">
-                        {t.usdEq}: ${tx.usdAmount?.toFixed(2)} (@{tx.exchangeRate})
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-4 text-sm text-slate-500">
-                    <span className={`${colors.badge} ${colors.text} px-2 py-1 rounded-md text-xs font-medium inline-flex items-center gap-1.5`}>
-                      <IconComponent size={14} className={colors.icon} />
-                      {tx.category}
-                    </span>
-                  </td>
-                  <td className={`p-4 text-sm font-semibold text-right ${tx.type === TransactionType.INCOME ? 'text-emerald-600' : 'text-slate-700'}`}>
-                    {tx.type === TransactionType.INCOME ? '+' : '-'}
-                    {tx.amount.toLocaleString(undefined, { style: 'currency', currency: tx.currency || 'USD' })}
-                  </td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => onDeleteTransaction(tx.id)}
-                      className="text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-            {filteredTransactions.length === 0 && (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-medium">
               <tr>
-                <td colSpan={5} className="p-8 text-center text-slate-400 text-sm">{t.noTransactionsFilter}</td>
+                <th className="p-4 whitespace-nowrap">{t.date}</th>
+                <th className="p-4 whitespace-nowrap">{t.description}</th>
+                <th className="p-4 whitespace-nowrap">{t.category}</th>
+                <th className="p-4 text-right whitespace-nowrap">{t.amount}</th>
+                <th className="p-4 w-10"></th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filteredTransactions.map(tx => {
+                const IconComponent = getCategoryIcon(tx.category);
+                const colors = CATEGORY_COLORS[tx.category as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS['Other'];
+                return (
+                  <tr key={tx.id} className="hover:bg-slate-50/50 group">
+                    <td className="p-4 text-sm text-slate-500 whitespace-nowrap">{new Date(tx.date).toLocaleDateString()}</td>
+                    <td className="p-4 text-sm font-medium text-slate-800">
+                      <div className="min-w-[150px]">
+                        {tx.description}
+                        {tx.currency && tx.currency !== 'USD' && (
+                          <div className="text-xs text-slate-400">
+                            {t.usdEq}: ${tx.usdAmount?.toFixed(2)} (@{tx.exchangeRate})
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-4 text-sm text-slate-500">
+                      <span className={`${colors.badge} ${colors.text} px-2 py-1 rounded-md text-xs font-medium inline-flex items-center gap-1.5 whitespace-nowrap`}>
+                        <IconComponent size={14} className={colors.icon} />
+                        {tx.category}
+                      </span>
+                    </td>
+                    <td className={`p-4 text-sm font-semibold text-right whitespace-nowrap ${tx.type === TransactionType.INCOME ? 'text-emerald-600' : 'text-slate-700'}`}>
+                      {tx.type === TransactionType.INCOME ? '+' : '-'}
+                      {tx.amount.toLocaleString(undefined, { style: 'currency', currency: tx.currency || 'USD' })}
+                    </td>
+                    <td className="p-4 text-right">
+                      <button
+                        onClick={() => onDeleteTransaction(tx.id)}
+                        className="text-slate-300 hover:text-rose-500 transition-colors md:opacity-0 md:group-hover:opacity-100"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+              {filteredTransactions.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-slate-400 text-sm">{t.noTransactionsFilter}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

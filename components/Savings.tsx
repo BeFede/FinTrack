@@ -61,55 +61,57 @@ export const Savings: React.FC<SavingsProps> = ({ data, onAddAsset, onDeleteAsse
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                    <table className="w-full text-left">
-                        <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-medium">
-                            <tr>
-                                <th className="p-4">{t.assetName}</th>
-                                <th className="p-4">{t.type}</th>
-                                <th className="p-4 text-right">{t.currentValue}</th>
-                                <th className="p-4 w-10"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {data.assets.map(asset => {
-                                const assetConfig = ASSET_TYPE_CONFIG[asset.type];
-                                const IconComponent = asset.type === 'SAVINGS' ? PiggyBank : asset.type === 'INVESTMENT' ? TrendingUp : Wallet;
-                                return (
-                                    <tr key={asset.id} className="hover:bg-slate-50 group">
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-lg ${assetConfig.bg} flex items-center justify-center`}>
-                                                    <IconComponent className={`${assetConfig.icon_color}`} size={18} />
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-medium">
+                                <tr>
+                                    <th className="p-4 whitespace-nowrap">{t.assetName}</th>
+                                    <th className="p-4 whitespace-nowrap">{t.type}</th>
+                                    <th className="p-4 text-right whitespace-nowrap">{t.currentValue}</th>
+                                    <th className="p-4 w-10"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {data.assets.map(asset => {
+                                    const assetConfig = ASSET_TYPE_CONFIG[asset.type];
+                                    const IconComponent = asset.type === 'SAVINGS' ? PiggyBank : asset.type === 'INVESTMENT' ? TrendingUp : Wallet;
+                                    return (
+                                        <tr key={asset.id} className="hover:bg-slate-50 group">
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-3 min-w-[150px]">
+                                                    <div className={`w-10 h-10 rounded-lg ${assetConfig.bg} flex items-center justify-center shrink-0`}>
+                                                        <IconComponent className={`${assetConfig.icon_color}`} size={18} />
+                                                    </div>
+                                                    <span className="font-medium text-slate-800">{asset.name}</span>
                                                 </div>
-                                                <span className="font-medium text-slate-800">{asset.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <span className={`text-xs px-2.5 py-1 rounded-md font-medium ${assetConfig.badge} ${assetConfig.text}`}>
-                                                {asset.type}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-right font-semibold text-slate-700">${asset.value.toLocaleString()}</td>
-                                        <td className="p-4 text-right">
-                                            <button
-                                                onClick={() => onDeleteAsset(asset.id)}
-                                                className="text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
+                                            </td>
+                                            <td className="p-4">
+                                                <span className={`text-xs px-2.5 py-1 rounded-md font-medium ${assetConfig.badge} ${assetConfig.text} whitespace-nowrap`}>
+                                                    {asset.type}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 text-right font-semibold text-slate-700 whitespace-nowrap">${asset.value.toLocaleString()}</td>
+                                            <td className="p-4 text-right">
+                                                <button
+                                                    onClick={() => onDeleteAsset(asset.id)}
+                                                    className="text-slate-300 hover:text-rose-500 transition-colors md:opacity-0 md:group-hover:opacity-100"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                                {data.assets.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} className="p-6 text-center text-slate-400 text-sm">
+                                            No assets added yet.
                                         </td>
                                     </tr>
-                                );
-                            })}
-                            {data.assets.length === 0 && (
-                                <tr>
-                                    <td colSpan={4} className="p-6 text-center text-slate-400 text-sm">
-                                        No assets added yet.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 h-fit">
