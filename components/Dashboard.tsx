@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { FinancialState, TransactionType, Currency, RecurringItem } from '../types';
 import { getFinancialInsights } from '../services/geminiService';
-import { TRANSLATIONS, CATEGORY_COLORS, CATEGORY_ICONS } from '../constants';
-import { TrendingUp, TrendingDown, Wallet, PieChart, Sparkles, Loader2, Filter, BarChart3, Bell, AlertTriangle, CalendarCheck, Home, UtensilsCrossed, Car, Zap, Tv, Heart, ShoppingBag, Plane, CreditCard, Briefcase, Laptop, DollarSign } from 'lucide-react';
+import { TRANSLATIONS } from '../constants';
+import { TrendingUp, TrendingDown, Wallet, PieChart, Sparkles, Loader2, Filter, BarChart3, Bell, DollarSign } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 
 interface DashboardProps {
   data: FinancialState;
@@ -76,17 +77,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, onPayRecurring }) =>
 
   // Calculate Totals based on filter
   const { totalIncome, totalExpense, netBalance } = useMemo(() => {
+    console.log('Dashboard Calculation Start');
+    console.log('Currency Filter:', currencyFilter);
+    console.log('Main Currency:', mainCurrency);
+    console.log('Filtered Transactions Length:', filteredTransactions.length);
+
     let inc = 0;
     let exp = 0;
     const targetCurrency = currencyFilter === 'ALL' ? mainCurrency : currencyFilter;
 
     filteredTransactions.forEach(t => {
       const val = convertCurrency(t.amount, t.currency, targetCurrency);
+      // console.log(`Tx: ${t.description}, Amount: ${t.amount} ${t.currency} -> ${val} ${targetCurrency}, Type: ${t.type}`);
 
       if (t.type === TransactionType.INCOME) inc += val;
-      else exp += val;
+      else if (t.type === TransactionType.EXPENSE) exp += val;
     });
 
+    console.log('Calculated Totals:', { inc, exp });
     return { totalIncome: inc, totalExpense: exp, netBalance: inc - exp };
   }, [filteredTransactions, currencyFilter, mainCurrency, exchangeRates]);
 
@@ -191,30 +199,43 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, onPayRecurring }) =>
 
   const formatMoney = (amount: number) => {
     // If ALL, we display mainCurrency. If specific, display that currency.
-    const code = currencyFilter === 'ALL' ? mainCurrency : currencyFilter;
-    return amount.toLocaleString(undefined, { style: 'currency', currency: code, maximumFractionDigits: 0 });
+    let code = currencyFilter === 'ALL' ? mainCurrency : currencyFilter;
+    if (!code) code = 'USD'; // Fallback safety
+    try {
+      return amount.toLocaleString(undefined, { style: 'currency', currency: code, maximumFractionDigits: 0 });
+    } catch (e) {
+      console.error("Format money error", e);
+      return `$${amount.toFixed(0)}`;
+    }
   }
 
-  // Helper to get icon component for category
-  const getCategoryIcon = (category: string) => {
-    const iconMap: Record<string, any> = {
-      'Home': Home,
-      'UtensilsCrossed': UtensilsCrossed,
-      'Car': Car,
-      'Zap': Zap,
-      'Tv': Tv,
-      'Heart': Heart,
-      'ShoppingBag': ShoppingBag,
-      'Plane': Plane,
-      'CreditCard': CreditCard,
-      'Briefcase': Briefcase,
-      'Laptop': Laptop,
-      'TrendingUp': TrendingUp,
-      'DollarSign': DollarSign
+  const IconRenderer = ({ iconName, className }: { iconName: string, className?: string }) => {
+    try {
+      // Safety check for LucideIcons namespace
+      const Icon = (LucideIcons as any)?.[iconName] || LucideIcons.HelpCircle;
+      return <Icon className={className} size={14} />;
+    } catch (e) {
+      return <LucideIcons.HelpCircle className={className} size={14} />;
+    }
+  };
+
+  const getCategoryDetails = (catName: string) => {
+    const cat = data.categories.find(c => c.name === catName);
+    if (cat) {
+      return {
+        icon: cat.icon,
+        color: cat.color,
+        bg: 'bg-slate-100', // Default bg
+        badge: 'bg-slate-100'
+      };
+    }
+    return {
+      icon: 'DollarSign',
+      color: 'text-slate-600',
+      bg: 'bg-slate-100',
+      badge: 'bg-slate-100'
     };
-    const iconName = CATEGORY_ICONS[category as keyof typeof CATEGORY_ICONS];
-    return iconMap[iconName] || DollarSign;
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -354,14 +375,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, onPayRecurring }) =>
               </div>
               <div className="space-y-4">
                 {categoryBreakdown.map((item, idx) => {
-                  const IconComponent = getCategoryIcon(item.cat);
-                  const colors = CATEGORY_COLORS[item.cat as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS['Other'];
+                  const details = getCategoryDetails(item.cat);
                   return (
                     <div key={idx}>
                       <div className="flex items-center justify-between text-sm mb-2">
                         <div className="flex items-center gap-2">
-                          <div className={`w-8 h-8 rounded-lg ${colors.bg} flex items-center justify-center`}>
-                            <IconComponent className={`w-4 h-4 ${colors.icon}`} />
+                          <div className={`w-8 h-8 rounded-lg ${details.bg} flex items-center justify-center`}>
+                            <IconRenderer iconName={details.icon} className={`w-4 h-4 ${details.color}`} />
                           </div>
                           <span className="text-slate-600 font-medium">{item.cat}</span>
                         </div>
@@ -369,7 +389,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, onPayRecurring }) =>
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2">
                         <div
-                          className={`h-2 rounded-full ${colors.icon.replace('text-', 'bg-')}`}
+                          className={`h-2 rounded-full ${details.color.replace('text-', 'bg-')}`}
                           style={{ width: `${item.percent}%` }}
                         ></div>
                       </div>
@@ -388,13 +408,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, onPayRecurring }) =>
             <h3 className="text-lg font-semibold text-slate-800 mb-4">{t.recentTransactions}</h3>
             <div className="space-y-4">
               {filteredTransactions.slice(0, 5).map(tx => {
-                const IconComponent = getCategoryIcon(tx.category);
-                const colors = CATEGORY_COLORS[tx.category as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS['Other'];
+                const details = getCategoryDetails(tx.category);
                 return (
                   <div key={tx.id} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg ${colors.bg} flex items-center justify-center`}>
-                        <IconComponent className={`${colors.icon}`} size={18} />
+                      <div className={`w-10 h-10 rounded-lg ${details.bg} flex items-center justify-center`}>
+                        <IconRenderer iconName={details.icon} className={`${details.color}`} />
                       </div>
                       <div>
                         <p className="font-medium text-slate-800">{tx.description}</p>

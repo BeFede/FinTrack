@@ -44,6 +44,16 @@ export interface Transaction extends BaseEntity {
   currency: Currency;
   exchangeRate: number;
   usdAmount: number;
+  metadata?: {
+    relatedItems?: {
+      description: string;
+      amount: number;
+      installment: number;
+      totalInstallments: number;
+    }[];
+    cardName?: string;
+    billingPeriod?: string;
+  };
 }
 
 export interface CreditCardPurchase extends BaseEntity {
@@ -78,11 +88,20 @@ export interface BudgetCategory extends BaseEntity {
   limit: number;
 }
 
+export interface Category extends BaseEntity {
+  name: string;
+  icon: string; // Name of the Lucide icon
+  color: string; // Tailwind color class or hex
+  budget?: number; // Optional monthly budget
+  type: TransactionType; // INCOME or EXPENSE
+}
+
 export interface FinancialState {
   transactions: Transaction[];
   creditCards: CreditCardPurchase[];
   recurring: RecurringItem[];
   assets: Asset[];
   budgets: BudgetCategory[];
+  categories: Category[];
   settings: AppSettings;
 }

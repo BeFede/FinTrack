@@ -409,6 +409,41 @@ const baseFields = {
   isDeleted: false
 };
 
+// Helper to generate initial categories
+const generateInitialCategories = () => {
+  const categories: any[] = [];
+
+  // Expenses
+  Object.entries(CATEGORY_ICONS).forEach(([name, icon]) => {
+    if (CATEGORIES.EXPENSE.includes(name)) {
+      categories.push({
+        id: `cat_exp_${name.toLowerCase().replace(/\s+/g, '_')}`,
+        name,
+        icon,
+        color: CATEGORY_COLORS[name as keyof typeof CATEGORY_COLORS]?.text || 'text-slate-600',
+        type: TransactionType.EXPENSE,
+        ...baseFields
+      });
+    }
+  });
+
+  // Income
+  Object.entries(CATEGORY_ICONS).forEach(([name, icon]) => {
+    if (CATEGORIES.INCOME.includes(name)) {
+      categories.push({
+        id: `cat_inc_${name.toLowerCase().replace(/\s+/g, '_')}`,
+        name,
+        icon,
+        color: CATEGORY_COLORS[name as keyof typeof CATEGORY_COLORS]?.text || 'text-slate-600',
+        type: TransactionType.INCOME,
+        ...baseFields
+      });
+    }
+  });
+
+  return categories;
+};
+
 export const INITIAL_STATE: FinancialState = {
   settings: {
     id: 'settings_default',
@@ -425,5 +460,6 @@ export const INITIAL_STATE: FinancialState = {
   creditCards: [],
   recurring: [],
   assets: [],
-  budgets: []
+  budgets: [],
+  categories: generateInitialCategories()
 };

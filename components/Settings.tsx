@@ -3,12 +3,20 @@ import { FinancialState, Language, Currency } from '../types';
 import { TRANSLATIONS } from '../constants';
 import { Settings as SettingsIcon, Globe, Coins } from 'lucide-react';
 
+import { CategoryManager } from './CategoryManager';
+import { Category } from '../types';
+
 interface SettingsProps {
     data: FinancialState;
     onUpdateSettings: (settings: FinancialState['settings']) => void;
+    onAddCategory: (category: Omit<Category, 'id' | 'createdAt' | 'updatedAt' | 'isSynced' | 'isDeleted' | 'userId'>) => void;
+    onUpdateCategory: (category: Category) => void;
+    onDeleteCategory: (id: string) => void;
 }
 
-export const Settings: React.FC<SettingsProps> = ({ data, onUpdateSettings }) => {
+export const Settings: React.FC<SettingsProps> = ({
+    data, onUpdateSettings, onAddCategory, onUpdateCategory, onDeleteCategory
+}) => {
     const { language, mainCurrency } = data.settings;
     const t = TRANSLATIONS[language];
 
@@ -76,9 +84,15 @@ export const Settings: React.FC<SettingsProps> = ({ data, onUpdateSettings }) =>
                         {t.currencyDisplayNote}
                     </p>
                 </div>
-
-
             </div>
+
+            <CategoryManager
+                categories={data.categories}
+                language={language}
+                onAdd={onAddCategory}
+                onUpdate={onUpdateCategory}
+                onDelete={onDeleteCategory}
+            />
         </div>
     );
 };
